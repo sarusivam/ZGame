@@ -3,9 +3,11 @@ import math
 import os
 import random
 import time
-
+from colors import *
 all_objects = []
 WIDTH, HEIGHT = 1000, 800
+
+
 
 
 class StaticObject:
@@ -120,14 +122,24 @@ class Bullet(MovableObject):
             del self
 
 class Text():
-    def __init__(self, x, y, font_size, color,text,font_type='Comic Sans MS'):
+    def __init__(self, x, y, font_size, color,text,font_type='Comic Sans MS', can_fade=True):
         pygame.font.init()
         self._text = text
         self.x = x
         self.y = y
         self.color = color
-
+        self._hidden = False
+        self.font_size = font_size
         self.font = pygame.font.SysFont(font_type, font_size)
+    @property
+    def hidden(self):
+        return self._hidden
+    
+    
+    @hidden.setter
+    def hidden(self, new_val):
+        assert new_val is True or new_val is False, "Hidden value should be type bool"
+        self._hidden = new_val
     @property
     def text(self):
         return self._text
@@ -138,11 +150,16 @@ class Text():
     @classmethod
     def get_text_from_dict(cls, dictionary:dict):
         return cls(**dictionary)
- 
-    def draw(self, screen):
-        my_font = self.font.render(self.text,False, self.color)
-        screen.blit(my_font,(self.x, self.y))
     def update_font(self, font):
         self.font = pygame.font.SysFont(font)
 
 
+    @staticmethod
+    def find_text_size(text, font_size):
+        return (len(text) * (font_size**(1/2)))*2
+    
+
+    def draw(self, screen : pygame.Surface):
+        if not self.hidden:
+            my_font = self.font.render(self.text,False, self.color)
+            screen.blit(my_font,(self.x, self.y))
